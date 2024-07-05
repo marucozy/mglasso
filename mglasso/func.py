@@ -126,7 +126,7 @@ def train(X, M=10, rho=1e-2, learning_rate=1e-3, num_epochs=1000, batch_size=5, 
 
     # Update Lmd for the last D
     for k in range(K):
-        Lmd[k], eps[k], = optimizeLmd(D, X[k], Lmd[k], N[k], V, M, rho, mode, dtp)
+        Lmd[k], eps[k], = optimizeLmd(D, X[k], Lmd[k], N[k], V, M, rho, mode)
 
     return Lmd, eps, D
 

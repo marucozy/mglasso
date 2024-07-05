@@ -29,8 +29,8 @@ def main():
     Lmd = pd.concat(Lmd, ignore_index=True)
     Lmd.to_csv('result/Lmd.csv', header=False, index=False)
 
-    eps = torch.cat(eps, dim=0)
-    eps = pd.DataFrame(eps.numpy())
+    eps = [e.item() for e in eps]
+    eps = pd.DataFrame(eps)
     eps.to_csv('result/eps.csv', header=False, index=False)
 
 if __name__ == "__main__":
