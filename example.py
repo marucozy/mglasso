@@ -8,8 +8,7 @@ def main():
 
     M = 10
     rho = 0.09
-#    num_epochs = 5000
-    num_epochs = 50
+    num_epochs = 5000
     batch_size = 5
 
     Xall = pd.read_csv('data/X.csv', header=None)

@@ -25,7 +25,7 @@ def createLmd(M, N, alpha):
     return sSgm, sLmd
 
 
-def create(V, M, K, N, alpha):
+def create(V, M, K, N, sN, alpha):
 
     D = torch.rand(V, M, dtype=torch.float64)
     P,s,Q = torch.svd(D)
@@ -36,7 +36,7 @@ def create(V, M, K, N, alpha):
     eps = []
     for k in range(K):
                         
-        sSgm, sLmd = createLmd(M, N, alpha)
+        sSgm, sLmd = createLmd(M, sN, alpha)
         Lmd.append(sLmd)
         eigenvalues, _ = torch.linalg.eigh(Lmd[k])
         if (eigenvalues > 0).all():

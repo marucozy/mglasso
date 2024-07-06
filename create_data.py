@@ -6,13 +6,14 @@ from data.tool import create
 
 def main():
 
-    V = 1000
+    V = 100
     M = 10
     K = 10
     N = 200
-    alpha = 0.1
+    sN = 20
+    alpha = 0.3
 
-    X,D,Lmd,eps = create(V, M, K, N, alpha)
+    X,D,Lmd,eps = create(V, M, K, N, sN, alpha)
 
     for k in range(len(X)):
         X[k] = pd.DataFrame(X[k].numpy())
