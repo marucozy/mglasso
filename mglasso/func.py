@@ -5,6 +5,24 @@ from scipy.sparse.linalg import eigsh
 from sklearn.covariance import graphical_lasso
 
 def calcloss(D, Lmd, eps, X, N, V, M):
+    """
+    Calculate the loss related to the likelihood.
+
+    Parameters
+    ----------
+    D : Projection matrix (torch.tensor of size V*M)
+    Lmd : Precision matrix of latent factors (torch.tensor of size M*M)
+    eps : Reciprocal of epsilon
+    X : Dataset (torch.tensor of size N*V)
+    N : Number of samples
+    V : Number of observed variables
+    M : Number of latent factors
+
+    Returns
+    -------
+    float
+        The loss related to the likelihood
+    """
     loss = torch.mm(torch.t(D), X)
     loss = torch.mm(loss, torch.t(loss))
     loss = torch.sum(loss * Lmd) - torch.trace(loss) * eps
@@ -14,16 +32,65 @@ def calcloss(D, Lmd, eps, X, N, V, M):
     return loss.item()
 
 def calclossrho(Lmd, rho):
+    """
+    Calculate the loss related to the L1 regularization term.
+
+    Parameters
+    ----------
+    Lmd : Precision matrix of latent factors (torch.tensor of size M*M)
+    rho : Weight of the L1 regularization term
+
+    Returns
+    -------
+    float
+        The loss related to the L1 regularization term
+    """
     loss = rho * torch.sum(torch.abs(Lmd))
     return loss.item()
 
 def calcS(D, X, N, V, M):
+    """
+    Calculate the reciprocal of epsilon
+
+    Parameters
+    ----------
+    D : Projection matrix (torch.tensor of size V*M)
+    X : Dataset (torch.tensor of size N*V)
+    N : Number of samples
+    V : Number of observed variables
+    M : Number of latent factors
+
+    Returns
+    -------
+    float
+        The reciprocal of epsilon
+    """
     eps = torch.sum(torch.pow(X,2))
     eps -= torch.sum(torch.pow(torch.mm(torch.t(D),X),2))
     eps = (V-M) * N * torch.reciprocal(eps)
     return eps
 
 def optimizeLmd(D, X, Lmd, N, V, M, rho, mode):
+    """
+    Calculate the sparse precision matrix of latent factors.
+
+    Parameters
+    ----------
+    D : Projection matrix (torch.tensor of size V*M)
+    X : Dataset (torch.tensor of size N*V)
+    Lmd : Precision matrix of latent factors (torch.tensor of size M*M)
+        (Return this if the graphical lasso fails.)
+    N : Number of samples
+    V : Number of observed variables
+    M : Number of latent factors
+    rho : Weight of the L1 regularization term
+    mode : Optimization algorithm for graphical lasso
+
+    Returns
+    -------
+    Lmd : Precision matrix of latent factors (torch.tensor of size M*M)
+    eps : Reciprocal of epsilon
+    """
 
     # Calculate eps, S, and Phi
     eps = calcS(D, X, N, V, M)
@@ -48,6 +115,27 @@ def optimizeLmd(D, X, Lmd, N, V, M, rho, mode):
 
 
 def train(X, M=10, rho=1e-2, learning_rate=1e-3, num_epochs=1000, batch_size=5, mode='cd', dtype='float64', init_D='mean'):
+    """
+    Train Meta Graphical Lasso model.
+
+    Parameters
+    ----------
+    X : List of dataset (list of torch.tensor of size N*V)
+    M :default: 10 Number of latent factors
+    rho :default: 0.01 Weight of the L1 regularization term
+    learning_rate :default: 0.001
+    num_epochs :default: 1000
+    batch_size :default: 5
+    mode :default: 'cd' Optimization algorithm for graphical lasso
+    dtype :default: 'float64'
+    init_D :default: 'mean' Initial value of the projection matrix ('mean': principal components of the concatenated entire dataset, otherwise: random)
+
+    Returns
+    -------
+    Lmd : List of precision matrix of latent factors (list of torch.tensor of size M*M)
+    eps : Reciprocals of epsilon
+    D : Projection matrix (torch.tensor of size V*M)
+    """
 
     if dtype == 'float64':
         dtp = torch.float64
